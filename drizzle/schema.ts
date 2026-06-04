@@ -25,4 +25,28 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const operationalChallenges = mysqlTable("operational_challenges", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id),
+  industry: varchar("industry", { length: 64 }).notNull(),
+  priority: mysqlEnum("priority", ["Low", "Medium", "High", "Critical"]).notNull(),
+  description: text("description").notNull(),
+  attachmentUrl: varchar("attachmentUrl", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OperationalChallenge = typeof operationalChallenges.$inferSelect;
+export type InsertOperationalChallenge = typeof operationalChallenges.$inferInsert;
+
+export const orchestrationResults = mysqlTable("orchestration_results", {
+  id: int("id").autoincrement().primaryKey(),
+  challengeId: int("challengeId").notNull().references(() => operationalChallenges.id),
+  classification: text("classification").notNull(),
+  activatedUnits: text("activatedUnits").notNull(), // JSON string
+  recommendations: text("recommendations").notNull(), // JSON string
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type OrchestrationResult = typeof orchestrationResults.$inferSelect;
+export type InsertOrchestrationResult = typeof orchestrationResults.$inferInsert;

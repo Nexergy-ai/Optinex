@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, operationalChallenges, orchestrationResults } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,56 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function createOperationalChallenge(
+  userId: number,
+  data: {
+    industry: string;
+    priority: "Low" | "Medium" | "High" | "Critical";
+    description: string;
+    attachmentUrl?: string;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(operationalChallenges).values({
+    userId,
+    ...data,
+  });
+
+  return result;
+}
+
+export async function createOrchestrationResult(
+  challengeId: number,
+  data: {
+    classification: string;
+    activatedUnits: string; // JSON string
+    recommendations: string; // JSON string
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(orchestrationResults).values({
+    challengeId,
+    ...data,
+  });
+
+  return result;
+}
+
+export async function getOrchestrationResult(challengeId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(orchestrationResults)
+    .where(eq(orchestrationResults.challengeId, challengeId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+
