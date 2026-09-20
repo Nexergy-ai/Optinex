@@ -32,7 +32,7 @@ export async function setupVite(app: Express, server: Server) {
         "index.html"
       );
 
-      // always reload the index.html file from disk incase it changes
+      // Reload index.html file from disk in case it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
@@ -48,10 +48,10 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  // Intentar primero resolver dist/public desde la raíz del proyecto
+  // 1. Resolver la ruta dist/public desde la raíz del proyecto
   let distPath = path.resolve(import.meta.dirname, "../..", "dist", "public");
 
-  // Si no se encuentra allí en producción, probar con el directorio public adyacente
+  // 2. Si no la encuentra ahí en el entorno de build de Render, buscar en public adyacente
   if (!fs.existsSync(distPath)) {
     distPath = path.resolve(import.meta.dirname, "public");
   }
@@ -62,10 +62,10 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // 1. Servir archivos estáticos (js, css, imágenes)
+  // 3. Servir estáticos (bundle de JS, CSS, assets)
   app.use(express.static(distPath));
 
-  // 2. Catch-all: redirigir cualquier ruta no encontrada al index.html para React Router
+  // 4. Regla Catch-All SPA: entrega index.html para que React Router tome el control de la ruta
   app.get("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
