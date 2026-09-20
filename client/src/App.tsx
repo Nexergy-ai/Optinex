@@ -14,10 +14,16 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/orchestrator" component={Orchestrator} />
       
-      {/* Rutas para Polimetal (incluye alias directo /polimetal) */}
-      <Route path="/polimetal" component={IntegrationsPolimetal} />
-      <Route path="/integrations/polimetal" component={IntegrationsPolimetal} />
-      <Route path="/onboarding" component={IntegrationsPolimetal} />
+      {/* PRUEBA AISLADA: Coincidencia flexible para Wouter */}
+      <Route path="/polimetal*">
+        {() => <IntegrationsPolimetal />}
+      </Route>
+      <Route path="/onboarding*">
+        {() => <IntegrationsPolimetal />}
+      </Route>
+      <Route path="/integrations/polimetal*">
+        {() => <IntegrationsPolimetal />}
+      </Route>
 
       <Route path="/404" component={NotFound} />
       {/* Ruta fallback final */}
